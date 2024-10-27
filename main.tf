@@ -11,8 +11,10 @@ module "bastion_keypair" {
 module "bastion_security_group" {
   source = "./modules/security_group"
 
-  security_group_name = var.security_group_name
-  allowed_ssh_cidr    = var.allowed_ssh_cidr # Replace with your actual CIDR block
+  security_group_name        = var.security_group_name
+  security_group_description = var.security_group_description
+  ingress_rules              = var.bastion_ingress_rules
+  egress_rules               = var.bastion_egress_rules
 }
 
 # Network module
@@ -26,7 +28,6 @@ module "bastion_network" {
   # router_name         = "bastion-router"
   external_network_name = var.external_network_name # Replace with your actual external network
 }
-
 
 # Bastion host module
 module "bastion_host" {

@@ -3,24 +3,38 @@ resource "openstack_networking_secgroup_v2" "bastion_sg" {
   description = var.security_group_description
 }
 
-# SSH access (Port 22) for bastion host
-resource "openstack_networking_secgroup_rule_v2" "bastion_ssh" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = var.allowed_ssh_cidr
+resource "openstack_networking_secgroup_rule_v2" "ingress_rules" {
+  for_each          = { for i, rule in var.ingress_rules : i => rule }
+  direction         = each.value.direction
+  ethertype         = each.value.ethertype
+  protocol          = each.value.protocol
+  port_range_min    = each.value.port_range_min
+  port_range_max    = each.value.port_range_max
   security_group_id = openstack_networking_secgroup_v2.bastion_sg.id
+
+  dynamic "remote_ip_prefix" {
+    for_each = each.value.remote_ip_prefix != "" ? [each.value.remote_ip_prefix] : []
+    content {
+      remote_ip_prefix = each.value.remote_ip_prefix
+    }
+  }
+
+  dynamic "remote_group_id" {
+    for_each = each.value.remote_group_id != "" ? [each.value.remote_group_id] : []
+    content {
+      remote_group_id = each.value.remote_group_id
+    }
+  }
 }
 
-# Optional: Egress rule to allow all outbound traffic
-resource "openstack_networking_secgroup_rule_v2" "all_egress" {
-  direction         = "egress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 0
-  port_range_max    = 0
-  remote_ip_prefix  = "0.0.0.0/0"
+
+resource "openstack_networking_secgroup_rule_v2" "egress_rules" {
+  for_each          = { for i, rule in var.egress_rules : i => rule }
+  direction         = each.value.direction
+  ethertype         = each.value.ethertype
+  protocol          = each.value.protocol
+  port_range_min    = each.value.port_range_min
+  port_range_max    = each.value.port_range_max
+  remote_ip_prefix  = each.value.remote_ip_prefix
   security_group_id = openstack_networking_secgroup_v2.bastion_sg.id
 }

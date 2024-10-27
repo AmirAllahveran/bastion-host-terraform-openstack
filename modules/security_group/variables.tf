@@ -1,16 +1,45 @@
 variable "security_group_name" {
-  description = "The name of the security group for the bastion host."
   type        = string
+  description = "Name of the security group"
 }
 
 variable "security_group_description" {
-  description = "A description of the security group."
   type        = string
-  default     = "Security group for bastion host."
+  description = "Description of the security group"
 }
 
-variable "allowed_ssh_cidr" {
-  description = "CIDR block allowed to SSH into the bastion host."
-  type        = string
-  default     = "0.0.0.0/0"  # Allowing all by default, but this should be restricted in production.
+variable "ingress_rules" {
+  type = list(object({
+    direction         = string
+    ethertype         = string
+    protocol          = string
+    port_range_min    = number
+    port_range_max    = number
+    remote_ip_prefix  = string
+    remote_group_id   = string
+  }))
+  description = "List of ingress rules to be applied to the security group"
+  default     = []
+}
+
+variable "egress_rules" {
+  type = list(object({
+    direction         = string
+    ethertype         = string
+    protocol          = string
+    port_range_min    = number
+    port_range_max    = number
+    remote_ip_prefix  = string
+  }))
+  description = "List of egress rules to be applied to the security group"
+  default     = [
+    {
+      direction         = "egress"
+      ethertype         = "IPv4"
+      protocol          = "tcp"
+      port_range_min    = 0
+      port_range_max    = 0
+      remote_ip_prefix  = "0.0.0.0/0"
+    }
+  ]
 }
