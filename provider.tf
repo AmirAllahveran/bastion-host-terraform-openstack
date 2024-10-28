@@ -6,3 +6,6 @@ provider "openstack" {
   #   auth_url    = "http://myauthurl:5000/v3"
   #   region      = "RegionOne"
 }
+
+# Specify the TLS provider for generating SSH keys
+provider "tls" {}

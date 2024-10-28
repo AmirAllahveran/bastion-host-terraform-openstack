@@ -1,4 +1,4 @@
-resource "openstack_networking_secgroup_v2" "bastion_sg" {
+resource "openstack_networking_secgroup_v2" "general_sg" {
   name        = var.security_group_name
   description = var.security_group_description
 }
@@ -10,7 +10,7 @@ resource "openstack_networking_secgroup_rule_v2" "ingress_rules" {
   protocol          = each.value.protocol
   port_range_min    = each.value.port_range_min
   port_range_max    = each.value.port_range_max
-  security_group_id = openstack_networking_secgroup_v2.bastion_sg.id
+  security_group_id = openstack_networking_secgroup_v2.general_sg.id
 
   dynamic "remote_ip_prefix" {
     for_each = each.value.remote_ip_prefix != "" ? [each.value.remote_ip_prefix] : []
@@ -36,5 +36,5 @@ resource "openstack_networking_secgroup_rule_v2" "egress_rules" {
   port_range_min    = each.value.port_range_min
   port_range_max    = each.value.port_range_max
   remote_ip_prefix  = each.value.remote_ip_prefix
-  security_group_id = openstack_networking_secgroup_v2.bastion_sg.id
+  security_group_id = openstack_networking_secgroup_v2.general_sg.id
 }

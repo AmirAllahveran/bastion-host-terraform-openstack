@@ -1,32 +1,33 @@
-# Create the bastion host
 resource "openstack_compute_instance_v2" "bastion" {
-  name            = var.instance_name
+  count           = var.instance_count
+  name            = "${var.instance_name}-${count.index}"
   image_name      = var.image_name
   flavor_name     = var.flavor_name
   key_pair        = var.key_pair_name
-  security_groups = [var.security_group_name]
-  network {
-    uuid = var.network_id
+  security_groups = var.security_groups
+
+  dynamic "network" {
+    for_each = var.networks
+    content {
+      uuid    = network.value.network_id
+      fixed_ip = lookup(network.value, "fixed_ip", null)
+    }
   }
 
-  # User data script for initial setup
-  user_data = var.user_data
+  user_data = join("\n", var.user_data_scripts)
 
-  # Enable SSH
-  metadata = {
-    ssh_user = var.ssh_user
-  }
+  metadata = merge({ ssh_user = var.ssh_user }, var.ssh_metadata)
 }
 
 data "openstack_networking_port_v2" "bastion_port" {
-  device_id  = openstack_compute_instance_v2.bastion.id
-  network_id = openstack_compute_instance_v2.bastion.network.0.uuid
+  count      = var.instance_count
+  device_id  = openstack_compute_instance_v2.bastion[count.index].id
+  network_id = openstack_compute_instance_v2.bastion[count.index].network.0.uuid
 }
 
-# Assign the floating IP created in the network module
 resource "openstack_networking_floatingip_associate_v2" "bastion_fip_association" {
+  count      = var.assign_floating_ip ? var.instance_count : 0
   floating_ip = var.floating_ip
-  port_id     = data.openstack_networking_port_v2.bastion_port.id
-  depends_on    = [openstack_compute_instance_v2.bastion]
+  port_id     = data.openstack_networking_port_v2.bastion_port[count.index].id
+  depends_on  = [openstack_compute_instance_v2.bastion]
 }
-

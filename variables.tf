@@ -1,31 +1,33 @@
-##### SSH-key #####
-variable "keypair_name" {
+# SSH Key Configuration
+variable "bastion_keypair_name" {
   description = "Name of the SSH keypair for the bastion host"
   type        = string
   default     = "bastion-ssh-key"
 }
 
 variable "public_key" {
-  description = "Public key to use for the bastion keypair. Leave null to generate a new keypair"
+  description = "Public key for the bastion host keypair. Leave null to generate a new keypair"
   type        = string
   default     = null
 }
 
 variable "private_key_path" {
-  description = "Path to save the private key for the bastion"
+  description = "Path to save the bastion private key"
   type        = string
   default     = "./bastion-key.pem"
 }
 
-##### Security Group #####
-variable "security_group_name" {
+# Security Group Configuration
+variable "bastion_sg_name" {
   type        = string
-  description = "Name of the security group"
+  description = "Name of the bastion security group"
+  default     = "bastion-sg"
 }
 
-variable "security_group_description" {
+variable "bastion_sg_description" {
   type        = string
-  description = "Description of the security group"
+  description = "Description of the bastion security group"
+  default     = "Security group for bastion host"
 }
 
 variable "bastion_ingress_rules" {
@@ -38,11 +40,11 @@ variable "bastion_ingress_rules" {
     remote_ip_prefix = string
     remote_group_id  = string
   }))
-  description = "List of ingress rules to be applied to the security group"
+  description = "List of ingress rules for bastion security group"
   default     = []
 }
 
-variable "bastion_egress_rules" {
+variable "default_egress_rules" {
   type = list(object({
     direction        = string
     ethertype        = string
@@ -51,7 +53,7 @@ variable "bastion_egress_rules" {
     port_range_max   = number
     remote_ip_prefix = string
   }))
-  description = "List of egress rules to be applied to the security group"
+  description = "Default egress rules for security groups"
   default = [
     {
       direction        = "egress"
@@ -64,9 +66,9 @@ variable "bastion_egress_rules" {
   ]
 }
 
-##### Security Group #####
+# Network Configuration
 variable "network_name" {
-  description = "Name of the network to use"
+  description = "Name of the network"
   type        = string
   default     = "default"
 }
@@ -83,27 +85,39 @@ variable "external_network_name" {
   default     = "public"
 }
 
-##### Bastion Host #####
-variable "instance_name" {
+# Bastion Host Configuration
+variable "bastion_instance_name" {
   description = "Name of the bastion host instance"
   type        = string
   default     = "bastion-host"
 }
 
 variable "image_name" {
-  description = "Name of the image for the instance"
+  description = "Name of the image for the bastion and private instances"
   type        = string
   default     = "Ubuntu 22.04"
 }
 
-variable "flavor_name" {
-  description = "Flavor name for the instance"
+variable "bastion_flavor_name" {
+  description = "Flavor name for the bastion host"
   type        = string
   default     = "m1.large"
 }
 
+variable "private_instances_flavor_name" {
+  description = "Flavor name for private instances"
+  type        = string
+  default     = "m1.large"
+}
+
+variable "private_instances_sg_name" {
+  type = string
+  description = "Name of the private instances security group"
+  default = "private_instances_sg"
+}
+
 variable "ssh_user" {
-  description = "SSH user for accessing the instance"
+  description = "SSH user for instance access"
   type        = string
   default     = "ubuntu"
 }
