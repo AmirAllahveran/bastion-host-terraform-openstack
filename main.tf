@@ -19,13 +19,13 @@ resource "openstack_compute_keypair_v2" "bastion_key" {
 # ---------------------------------
 
 # Template for cloud-init configuration
-data "template_file" "cloud_init" {
-  template = file("./templates/bastion_cloud_init.tpl")
-  vars = {
+locals {
+  cloud_init_content = templatefile("${path.module}/templates/bastion_cloud_init.tpl", {
     bastion_user = var.ssh_user
     private_key  = tls_private_key.bastion_ssh_key.private_key_pem
-  }
+  })
 }
+
 
 # ---------------------------------
 # Security Groups
@@ -34,7 +34,7 @@ data "template_file" "cloud_init" {
 # Module: Security Group for Bastion
 module "bastion_security_group" {
   source                     = "./modules/security_group"
-  
+
   security_group_name        = var.bastion_sg_name
   security_group_description = var.bastion_sg_description
   ingress_rules              = var.bastion_ingress_rules
@@ -87,7 +87,7 @@ module "bastion_host" {
   networks          = [{ network_id = module.bastion_network.network_id }]
   floating_ip       = module.bastion_network.floating_ip
   ssh_user          = var.ssh_user
-  user_data_scripts = [data.template_file.cloud_init.rendered]
+  user_data_scripts = [local.cloud_init_content]
 }
 
 # Module: Compute Resource for Private Instances
