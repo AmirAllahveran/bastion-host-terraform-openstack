@@ -1,78 +1,68 @@
+variable "instance_count" {
+  description = "Number of instances to create."
+  type        = number
+  default     = 1
+}
+
 variable "instance_name" {
-  description = "Name of the bastion host instance."
+  description = "Name prefix for the instance."
   type        = string
 }
 
 variable "image_name" {
-  description = "The name of the image to use for the bastion host."
+  description = "The name of the image to use for the instance."
   type        = string
 }
 
 variable "flavor_name" {
-  description = "The flavor (size) of the instance."
+  description = "The flavor to use for the instance."
   type        = string
 }
 
 variable "key_pair_name" {
-  description = "The name of the SSH key pair to use for access."
+  description = "The key pair name to use for SSH access."
   type        = string
 }
 
-variable "floating_ip_pool" {
-  description = "The floating IP pool from which to allocate a floating IP."
-  type        = string
-  default     = null
-}
-
-variable "floating_ip" {
-  description = "The floating IP to associate with the bastion host."
-  type        = string
-  default = null
-}
-
-variable "ssh_user" {
-  description = "The SSH user for accessing the bastion host."
-  type        = string
-  default     = "ubuntu"  # Adjust based on the image you're using
-}
-
-variable "user_data" {
-  description = "Optional user data script for instance setup (e.g., cloud-init)."
-  type        = string
-  default     = null
-}
-
-variable "instance_count" {
-  type    = number
-  default = 1
-}
-
-variable "assign_floating_ip" {
-  type    = bool
-  default = false
-}
-
-# Allow multiple security groups and networks
 variable "security_groups" {
-  type    = list(string)
-  default = []
+  description = "A list of security groups to assign to the instance."
+  type        = list(string)
+  default     = []
 }
 
 variable "networks" {
-  type    = list(object({
+  description = "A list of network configurations. Each network should have a 'network_id' and optionally a 'fixed_ip'."
+  type        = list(object({
     network_id = string
     fixed_ip   = optional(string)
   }))
 }
 
-# List of user data scripts
 variable "user_data_scripts" {
-  type    = list(string)
-  default = []
+  description = "A list of user data scripts to be executed on instance launch."
+  type        = list(string)
+  default     = []
 }
 
-# Optional SSH metadata
+variable "ssh_user" {
+  description = "The SSH username for accessing the instance."
+  type        = string
+}
+
 variable "ssh_metadata" {
-  type    = map(string)
-  default = {}
+  description = "Additional metadata to add for SSH configuration."
+  type        = map(string)
+  default     = {}
+}
+
+variable "assign_floating_ip" {
+  description = "Whether to assign a floating IP to the instance."
+  type        = bool
+  default     = false
+}
+
+variable "floating_ip" {
+  description = "Floating IP to associate with the instance."
+  type        = string
+  default     = null
 }

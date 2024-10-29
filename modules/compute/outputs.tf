@@ -1,9 +1,14 @@
-output "bastion_instance_id" {
-  description = "The ID of the bastion host instance."
-  value       = openstack_compute_instance_v2.bastion.id
+output "instance_ids" {
+  description = "The IDs of the created instances."
+  value       = [for instance in openstack_compute_instance_v2.bastion : instance.id]
 }
 
-output "bastion_public_ip" {
-  description = "The public floating IP of the bastion host."
-  value       = var.floating_ip
+output "instance_ips" {
+  description = "The fixed IPs of the created instances."
+  value       = [for instance in openstack_compute_instance_v2.bastion : instance.access_ip_v4]
+}
+
+output "floating_ips" {
+  description = "The floating IPs associated with the instances (if assigned)."
+  value       = [for assoc in openstack_networking_floatingip_associate_v2.bastion_fip_association : assoc.floating_ip]
 }
