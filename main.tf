@@ -10,7 +10,7 @@ resource "tls_private_key" "bastion_ssh_key" {
 
 # Create key pair resource in OpenStack using the generated public key
 resource "openstack_compute_keypair_v2" "bastion_key" {
-  name       = var.bastion_keypair_name
+  name       = var.private_instance_keypair_name
   public_key = tls_private_key.bastion_ssh_key.public_key_openssh
 }
 
@@ -87,15 +87,16 @@ module "bastion_network" {
 module "bastion_host" {
   source = "./modules/compute"
 
-  instance_name     = var.bastion_instance_name
-  image_name        = var.image_name
-  flavor_name       = var.bastion_flavor_name
-  key_pair_name     = module.bastion_keypair.keypair_name
-  security_groups   = [module.bastion_security_group.security_group_id]
-  networks          = [{ network_id = module.bastion_network.network_id }]
-  floating_ip       = module.bastion_network.floating_ip
-  ssh_user          = var.ssh_user
-  user_data_scripts = [local.cloud_init_content]
+  instance_name      = var.bastion_instance_name
+  image_name         = var.image_name
+  flavor_name        = var.bastion_flavor_name
+  key_pair_name      = module.bastion_keypair.keypair_name
+  security_groups    = [module.bastion_security_group.security_group_id]
+  networks           = [{ network_id = module.bastion_network.network_id }]
+  floating_ip        = module.bastion_network.floating_ip
+  ssh_user           = var.ssh_user
+  user_data_script   = local.cloud_init_content
+  assign_floating_ip = true
 }
 
 # Module: Compute Resource for Private Instances

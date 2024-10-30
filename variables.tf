@@ -8,6 +8,12 @@ variable "bastion_keypair_name" {
   default     = "bastion-ssh-key"
 }
 
+variable "private_instance_keypair_name" {
+  description = "Name of the SSH keypair for the private instances"
+  type        = string
+  default     = "private-instances-ssh-key"
+}
+
 variable "public_key" {
   description = "Public key for the bastion host keypair (optional, leave null to generate a new keypair)"
   type        = string

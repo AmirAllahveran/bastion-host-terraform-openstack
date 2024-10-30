@@ -38,10 +38,10 @@ variable "networks" {
   }))
 }
 
-variable "user_data_scripts" {
-  description = "A list of user data scripts to be executed on instance launch."
-  type        = list(string)
-  default     = []
+variable "user_data_script" {
+  description = "user data script to be executed on instance launch."
+  type        = string
+  default     = ""
 }
 
 variable "ssh_user" {

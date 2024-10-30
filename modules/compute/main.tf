@@ -13,7 +13,7 @@ resource "openstack_compute_instance_v2" "bastion" {
     }
   }
 
-  user_data = join("\n", var.user_data_scripts)
+  user_data = var.user_data_script
 
   metadata = merge({ ssh_user = var.ssh_user }, var.ssh_metadata)
 }
