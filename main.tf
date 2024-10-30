@@ -14,6 +14,14 @@ resource "openstack_compute_keypair_v2" "bastion_key" {
   public_key = tls_private_key.bastion_ssh_key.public_key_openssh
 }
 
+module "bastion_keypair" {
+  source = "./modules/keypair"
+
+  keypair_name     = var.bastion_keypair_name
+  public_key       = var.public_key
+  private_key_path = var.private_key_path
+}
+
 # ---------------------------------
 # Cloud-Init Configuration
 # ---------------------------------
@@ -33,7 +41,7 @@ locals {
 
 # Module: Security Group for Bastion
 module "bastion_security_group" {
-  source                     = "./modules/security_group"
+  source = "./modules/security_group"
 
   security_group_name        = var.bastion_sg_name
   security_group_description = var.bastion_sg_description
@@ -44,13 +52,13 @@ module "bastion_security_group" {
 # Create customized ingress rules for private instances allowing access from the bastion
 locals {
   private_instance_rules_with_bastion_access = [
-    for rule in var.private_instance_ingress_rules : merge(rule, { remote_group_id = module.bastion_security_group.id })
+    for rule in var.private_instance_ingress_rules : merge(rule, { remote_group_id = module.bastion_security_group.security_group_id })
   ]
 }
 
 # Module: Security Group for Private Instances
 module "private_instances_security_group" {
-  source                     = "./modules/security_group"
+  source = "./modules/security_group"
 
   security_group_name        = var.private_instances_sg_name
   security_group_description = var.private_instances_sg_description
@@ -64,7 +72,7 @@ module "private_instances_security_group" {
 
 # Module: Network for Bastion and Private Instances
 module "bastion_network" {
-  source                = "./modules/network"
+  source = "./modules/network"
 
   network_name          = var.network_name
   subnet_name           = var.subnet_name
@@ -77,7 +85,7 @@ module "bastion_network" {
 
 # Module: Compute Resource for Bastion Host
 module "bastion_host" {
-  source            = "./modules/compute"
+  source = "./modules/compute"
 
   instance_name     = var.bastion_instance_name
   image_name        = var.image_name
@@ -92,7 +100,7 @@ module "bastion_host" {
 
 # Module: Compute Resource for Private Instances
 module "private_instances" {
-  source          = "./modules/compute"
+  source = "./modules/compute"
 
   instance_count  = 1
   instance_name   = var.private_instance_name

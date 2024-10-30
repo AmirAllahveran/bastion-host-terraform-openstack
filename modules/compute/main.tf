@@ -10,7 +10,6 @@ resource "openstack_compute_instance_v2" "bastion" {
     for_each = var.networks
     content {
       uuid    = network.value.network_id
-      fixed_ip = lookup(network.value, "fixed_ip", null)
     }
   }
 

@@ -12,19 +12,7 @@ resource "openstack_networking_secgroup_rule_v2" "ingress_rules" {
   port_range_max    = each.value.port_range_max
   security_group_id = openstack_networking_secgroup_v2.general_sg.id
 
-  dynamic "remote_ip_prefix" {
-    for_each = each.value.remote_ip_prefix != "" ? [each.value.remote_ip_prefix] : []
-    content {
-      remote_ip_prefix = each.value.remote_ip_prefix
-    }
-  }
-
-  dynamic "remote_group_id" {
-    for_each = each.value.remote_group_id != "" ? [each.value.remote_group_id] : []
-    content {
-      remote_group_id = each.value.remote_group_id
-    }
-  }
+remote_group_id = each.value.remote_group_id != "" ? each.value.remote_group_id : null
 }
 
 
